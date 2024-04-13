@@ -8,6 +8,17 @@ bg = transform.scale(
     image.load("bg.png"),
     (1280, 720)
 )
+RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+count1 = 0
+count2 = 0
+f = font.SysFont("Arial", 36)
+ff = font.SysFont("Arial", 60)
+game_over1 = ff.render("ИГРОК 1 ПРОИГРАЛ", False, RED)
+game_over2 = ff.render("ИГРОК 2 ПРОИГРАЛ", False, RED)
+count1_text = ff.render(f"ПРОПУЩЕНО: {count1}", False, WHITE)
+count2_text = ff.render(f"ПРОПУЩЕНО: {count2}", False, WHITE)
+
 
 class GameSprite(sprite.Sprite):
 
@@ -57,16 +68,15 @@ class Enemy(GameSprite):
 
         if self.rect.centery <= 60 or self.rect.centery >= 660:
             self.speedy *= -1
-        if self.rect.centerx <= 60 or self.rect.centerx >= 1220:
-            self.speedx *= -1
 
 r1 = Player(160, 300, 25, 160, 5, "rocket.png", 1)
 r2 = Player(1120, 300, 25, 160, 5, "rocket.png", 2)
-ball = Enemy(240, 300, 128, 128, 6, "ball.png", 6, 5)
+ball = Enemy(460, 300, 128, 128, 6, "ball.png", 6, 5)
 
 clock = time.Clock()
 
 game = True
+loser = None
 
 while game:
 
@@ -87,9 +97,58 @@ while game:
         if randint(1, 2) == 1:
             ball.speedy *= 1
     
-    win.blit(bg, (0, 0))
+    if ball.rect.x < 5:
+        count1 += 1
+        ball.rect.x = 460
+        ball.rect.y = 300
+        ball.speedx *= -1
+    if ball.rect.x > 1155:
+        count2 += 1
+        ball.rect.x = 460
+        ball.rect.y = 300
+        ball.speedx *= -1
+    
+    if count1 == 5:
+        loser = 1
+    if count2 == 5:
+        loser = 2
+
+    count1_text = f.render(f"ПРОПУЩЕНО: {count1}", False, WHITE)
+    count2_text = f.render(f"ПРОПУЩЕНО: {count2}", False, WHITE)
+    
+    win.blit(bg, (0, 0))    
     ball.reset()
     r1.reset()
     r2.reset()
-    
+    win.blit(count1_text, (20, 30))
+    win.blit(count2_text, (960, 30))
+
     display.update()
+
+    count1_text = f.render(f"ПРОПУЩЕНО: {count1}", False, WHITE)
+    count2_text = f.render(f"ПРОПУЩЕНО: {count2}", False, WHITE)
+
+    while loser:
+
+        for e in event.get():
+            if e.type == QUIT:
+                game = False                
+                loser = None
+
+        keys_pressed = key.get_pressed()
+        if keys_pressed[K_r]:
+            loser = None
+            count1 = 0
+            count2 = 0
+            count1_text = f.render(f"ПРОПУЩЕНО: {count1}", False, WHITE)
+            count2_text = f.render(f"ПРОПУЩЕНО: {count2}", False, WHITE)
+            r1 = Player(160, 300, 25, 160, 5, "rocket.png", 1)
+            r2 = Player(1120, 300, 25, 160, 5, "rocket.png", 2)
+            ball = Enemy(460, 300, 128, 128, 6, "ball.png", 6, 5)
+
+        if loser == 1:
+            win.blit(game_over1, (400, 320))
+        elif loser == 2:
+            win.blit(game_over2, (400, 320))
+    
+        display.update()
