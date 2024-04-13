@@ -1,4 +1,5 @@
 from pygame import *
+from random import randint
 
 init()
 win = display.set_mode((1280, 720))
@@ -32,14 +33,14 @@ class Player(GameSprite):
     def move(self):
         keys_pressed = key.get_pressed()
         if self.rockettype == 1:
-            if keys_pressed[K_w] and self.rect.y > 40:
+            if keys_pressed[K_w] and self.rect.y > 4:
                 self.rect.y -= self.s
-            if keys_pressed[K_s] and self.rect.y < 680:
+            if keys_pressed[K_s] and self.rect.y < 560:
                 self.rect.y += self.s
         elif self.rockettype == 2:
-            if keys_pressed[K_UP] and self.rect.y > 40:
+            if keys_pressed[K_UP] and self.rect.y > 4:
                 self.rect.y -= self.s
-            if keys_pressed[K_DOWN] and self.rect.y < 680:
+            if keys_pressed[K_DOWN] and self.rect.y < 560:
                 self.rect.y += self.s
 
 class Enemy(GameSprite):
@@ -79,8 +80,12 @@ while game:
 
     if Rect.colliderect(ball.rect, r1.rect):
         ball.speedx *= -1
+        if randint(1, 2) == 1:
+            ball.speedy *= 1
     if Rect.colliderect(ball.rect, r2.rect):
         ball.speedx *= -1
+        if randint(1, 2) == 1:
+            ball.speedy *= 1
     
     win.blit(bg, (0, 0))
     ball.reset()
